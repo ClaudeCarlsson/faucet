@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity = 0.8.17;
 
-import "./owned.sol";
+import "./Owned.sol";
+import "./Logger.sol";
+import "./IFaucet.sol";
 
-contract Faucet is Owned{
+contract Faucet is Owned, Logger, IFaucet {
 
     uint public numberOfFunders;
 
@@ -25,14 +27,22 @@ contract Faucet is Owned{
     // External function are part of the contract interface
     // which means that they can be called from other contracts and other
     // txns
+
+    function emitLog() public override pure returns(bytes32) {
+        return "Hello world";
+    }
+
     receive() external payable {}
 
     function transferOwnership(address newOwner) external onlyOwner {
         owner = newOwner;
     }
 
-    function addFunds() external payable {
+    function addFunds() override external payable {
         address funder = msg.sender;
+
+        test3();
+
         if (!funders[funder]) {
             funders[funder] = true;
             lutFunders[numberOfFunders] = funder;
@@ -48,7 +58,7 @@ contract Faucet is Owned{
         // Only admin should have access to
     }
 
-    function withdraw(uint withdrawAmount) external limitWithdraw(withdrawAmount){
+    function withdraw(uint withdrawAmount) override external limitWithdraw(withdrawAmount){
         payable(msg.sender).transfer(withdrawAmount); 
     }
 
